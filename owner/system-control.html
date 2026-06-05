@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Sistema — Lock e Manutenção</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#D4AF37">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/style.css">
+<link rel="stylesheet" href="/assets/real-games.css">
+<link rel="stylesheet" href="/assets/zarcovi-live-sync.css">
+<link rel="stylesheet" href="/assets/consolidado037.css">
+<link rel="stylesheet" href="/assets/iris-control.css">
+<link rel="stylesheet" href="/assets/menu-submenus.css">
+  <link rel="stylesheet" href="/assets/blinders-effects.css">
+</head>
+<body data-page="mod020-admin-system">
+
+<main class="app">
+  <div class="top">
+    <div><h1>Sistema</h1><p>Lock, manutenção e gatilhos instantâneos.</p></div>
+    <a class="btn ghost" href="/owner/admin-menu.html" data-admin-only>Menu ADM</a>
+  </div>
+
+  <section class="mod020-admin-switches">
+    <article class="card mod020-admin-switch">
+      <h2>Lock</h2>
+      <p>Quando ativo, membros comuns não conseguem fazer login. Admins continuam entrando pelo painel admin.</p>
+      <div class="actions">
+        <button class="btn" id="lockBtn">Ativar Lock</button>
+        <button class="btn ghost" id="unlockBtn">Desativar agora</button>
+      </div>
+    </article>
+
+    <form class="card mod020-admin-switch" id="maintForm">
+      <h2>Manutenção</h2>
+      <p>Bloqueia login comum e mostra mensagem personalizada.</p>
+      <label>Mensagem para membros<textarea name="message" class="mod020-maintenance-message" placeholder="Estamos em manutenção. Voltamos em breve."></textarea></label>
+      <div class="actions">
+        <button class="btn" type="submit">Ativar manutenção</button>
+        <button class="btn ghost" type="button" id="offMaint">Desativar agora</button>
+      </div>
+    </form>
+  </section>
+
+  <section id="stateBox" class="grid"></section>
+  <div id="statusBox" class="status"></div>
+</main>
+
+<script type="module" src="/assets/app.js"></script>
+<script src="/assets/engtech-render-engine.js"></script>
+<script src="/assets/egntec-admin-media.js"></script>
+<script src="/assets/v34-features.js"></script>
+<script src="/assets/mod0.js"></script>
+<script src="/assets/mod010.js"></script>
+<script src="/assets/mod020.js"></script>
+<script src="/assets/mod030.js"></script>
+<script src="/assets/official03.js"></script>
+<script src="/assets/core-guard.js"></script>
+<script src="/assets/official031.js"></script>
+<script src="/assets/real-games.js"></script>
+<script src="/assets/bet-limits-033.js"></script>
+<script src="/assets/zarcovi-live-sync.js"></script>
+<script src="/assets/apps-script-helper.js"></script>
+<script src="/assets/guest-sheet-sync.js"></script>
+<script src="/assets/consolidado037.js"></script>
+<script src="/assets/iris-control.js"></script>
+<script src="/assets/menu-submenus.js"></script>
+  <script src="/assets/blinders-effects.js"></script>
+</body>
+</html>

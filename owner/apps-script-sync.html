@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Apps Script Sync — Blinders</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#D4AF37">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="stylesheet" href="/assets/style.css">
+  <link rel="stylesheet" href="/assets/real-games.css">
+  <link rel="stylesheet" href="/assets/zarcovi-live-sync.css">
+<link rel="stylesheet" href="/assets/consolidado037.css">
+<link rel="stylesheet" href="/assets/iris-control.css">
+<link rel="stylesheet" href="/assets/menu-submenus.css">
+  <link rel="stylesheet" href="/assets/blinders-effects.css">
+</head>
+<body data-page="apps-script-sync">
+
+<main class="app">
+  <div class="top">
+    <div>
+      <h1>Apps Script Sync</h1>
+      <p>Sincronização mais estável da planilha Zarcovi com o Supabase.</p>
+    </div>
+    <a class="btn ghost" href="/owner/zarcovi-sync.html" data-admin-only>Zarcovi Sync</a>
+  </div>
+
+  <section class="official-grid">
+    <article class="box">
+      <h2>Por que usar Apps Script?</h2>
+      <p>Ele roda dentro do Google Planilhas, lê os dados direto da planilha e envia para o Supabase sem depender do navegador ficar aberto.</p>
+      <p class="stable-clean-note">Use um segredo privado. Não coloque a service role key no site.</p>
+    </article>
+
+    <article class="box">
+      <h2>Ordem correta</h2>
+      <div class="apps-script-steps">
+        <article>1. Rode o SQL 0.3.5 no Supabase.</article>
+        <article>2. No painel admin, cadastre um segredo de sincronização.</article>
+        <article>3. Cole o Apps Script na planilha.</article>
+        <article>4. Configure as Script Properties.</article>
+        <article>5. Crie um gatilho de tempo.</article>
+      </div>
+    </article>
+  </section>
+
+  <section class="box" style="width:100%;margin-top:14px">
+    <h2>Código Apps Script</h2>
+    <button class="btn" id="copyAppsScriptBtn">Copiar código</button>
+    <pre class="status apps-script-code" id="appsScriptCode">/**
+ * BLINDERS CASSINO — ZARCOVI APPS SCRIPT SYNC
+ *
+ * Como usar:
+ * 1. Abra a planilha Zarcovi.
+ * 2. Extensões &gt; Apps Script.
+ * 3. Cole este código.
+ * 4. Em Project Settings &gt; Script Properties, crie:
+ *    SUPABASE_URL = https://lbmmqfgcyimijaqnvvpx.supabase.co
+ *    SUPABASE_ANON_KEY = SUA_ANON_KEY_DO_PROJETO
+ *    BLINDERS_SYNC_SECRET = o mesmo segredo cadastrado no Supabase
+ * 5. Execute syncZarcoviToBlinders().
+ * 6. Crie um gatilho de tempo para rodar a cada 1, 5 ou 15 minutos.
+ */
+
+function syncZarcoviToBlinders() {
+  const props = PropertiesService.getScriptProperties();
+
+  const supabaseUrl = props.getProperty('SUPABASE_URL');
+  const anonKey = props.getProperty('SUPABASE_ANON_KEY');
+  const secret = props.getProperty('BLINDERS_SYNC_SECRET');
+
+  if (!supabaseUrl || !anonKey || !secret) {
+    throw new Error('Configure SUPABASE_URL, SUPABASE_ANON_KEY e BLINDERS_SYNC_SECRET nas Script Properties.');
+  }
+
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const sheet = ss.getSheets()[0];
+  const values = sheet.getDataRange().getDisplayValues();
+
+  const accounts = extractZarcoviAccounts_(values);
+
+  const payload = {
+    p_secret: secret,
+    p_source_key: 'banco01',
+    p_source_url: ss.getUrl(),
+    p_accounts: accounts
+  };
+
+  const response = UrlFetchApp.fetch(supabaseUrl + '/rest/v1/rpc/app_zarcovi_live_apps_script_push', {
+    method: 'post',
+    contentType: 'application/json',
+    headers: {
+      apikey: anonKey,
+      Authorization: 'Bearer ' + anonKey
+    },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  });
+
+  const code = response.getResponseCode();
+  const body = response.getContentText();
+
+  if (code &lt; 200 || code &gt;= 300) {
+    throw new Error('Erro Supabase ' + code + ': ' + body);
+  }
+
+  Logger.log(body);
+  return body;
+}
+
+function extractZarcoviAccounts_(rows) {
+  const accounts = [];
+  const seen = {};
+
+  for (let r = 0; r &lt; rows.length; r++) {
+    const row = rows[r].map(v =&gt; String(v || '').trim());
+
+    for (let c = 0; c &lt; row.length - 1; c++) {
+      if (row[c].toLowerCase() === 'vila' &amp;&amp; row[c + 1].toUpperCase() === 'CONTA') {
+        for (let k = r + 1; k &lt; rows.length; k++) {
+          const rr = rows[k] || [];
+          const kind = String(rr[c] || '').trim();
+          const conta = String(rr[c + 1] || '').trim().toUpperCase();
+
+          if (!conta || conta === 'CONTA') continue;
+          if (!/^[A-Z]{2,}[A-Z0-9]{1,}$/.test(conta)) continue;
+
+          if (seen[conta]) continue;
+          seen[conta] = true;
+
+          accounts.push({
+            sourceRow: k + 1,
+            kind: kind || 'Conta',
+            vila: kind || '',
+            conta: conta,
+            level: parseNumber_(rr[c + 2]),
+            ryosB: parseNumber_(rr[c + 3]),
+            salarioB: parseNumber_(rr[c + 4]),
+            cargos: String(rr[c + 5] || '').trim(),
+            fogo: parseNumber_(rr[c + 6]),
+            pedra: parseNumber_(rr[c + 7]),
+            personagem: String(rr[c + 8] || '').trim(),
+            tesouroB: parseNumber_(rr[c + 9]),
+            raw: rr.slice(c, c + 10)
+          });
+        }
+      }
+    }
+  }
+
+  return accounts;
+}
+
+function parseNumber_(value) {
+  let s = String(value || '').trim();
+  if (!s) return 0;
+
+  s = s.replace(/[^\d,.\-]/g, '');
+  if (!s || s === '-') return 0;
+
+  if (s.indexOf(',') &gt;= 0 &amp;&amp; s.indexOf('.') &gt;= 0) {
+    s = s.replace(/\./g, '').replace(',', '.');
+  } else if (s.indexOf(',') &gt;= 0) {
+    s = s.replace(',', '.');
+  }
+
+  const n = Number(s);
+  return isFinite(n) ? n : 0;
+}
+
+function createEveryMinuteTrigger() {
+  ScriptApp.newTrigger('syncZarcoviToBlinders')
+    .timeBased()
+    .everyMinutes(1)
+    .create();
+}</pre>
+  </section>
+
+  <div id="statusBox" class="status"></div>
+</main>
+
+<script type="module" src="/assets/app.js"></script>
+<script src="/assets/engtech-render-engine.js"></script>
+<script src="/assets/egntec-admin-media.js"></script>
+<script src="/assets/v34-features.js"></script>
+<script src="/assets/mod0.js"></script>
+<script src="/assets/mod010.js"></script>
+<script src="/assets/mod020.js"></script>
+<script src="/assets/mod030.js"></script>
+<script src="/assets/official03.js"></script>
+<script src="/assets/malena-core.js"></script>
+<script src="/assets/official031.js"></script>
+<script src="/assets/real-games.js"></script>
+<script src="/assets/bet-limits-033.js"></script>
+<script src="/assets/zarcovi-live-sync.js"></script>
+<script src="/assets/apps-script-helper.js"></script>
+<script src="/assets/guest-sheet-sync.js"></script>
+<script src="/assets/consolidado037.js"></script>
+<script src="/assets/iris-control.js"></script>
+<script src="/assets/menu-submenus.js"></script>
+  <script src="/assets/blinders-effects.js"></script>
+</body>
+</html>

@@ -1,0 +1,21 @@
+{
+  "name": "Blinders Cassino",
+  "short_name": "Blinders",
+  "start_url": "/member/login.html?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#030303",
+  "theme_color": "#D4AF37",
+  "icons": [
+    {
+      "src": "/assets/pwa/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/pwa/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

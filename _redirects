@@ -1,0 +1,2 @@
+# Cloudflare Pages: bloquear SQL público
+/database/* /404.html 404
