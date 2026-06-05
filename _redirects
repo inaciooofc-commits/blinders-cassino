@@ -1,4 +1,2 @@
-# Cloudflare Pages redirects - válido
-# Não use status 404 aqui.
-# O site será publicado pela pasta dist.
+# Este arquivo raiz é seguro, mas o Cloudflare deve publicar a pasta dist.
 /* /index.html 200

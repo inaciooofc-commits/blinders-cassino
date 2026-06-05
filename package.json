@@ -1,12 +1,8 @@
 {
   "name": "blinders-cassino-cloudflare-build",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
-  "description": "Build mínimo para Cloudflare Pages: descompacta site.zip em dist e remove _redirects inválido.",
   "scripts": {
-    "build": "node build.js"
-  },
-  "dependencies": {
-    "adm-zip": "^0.5.16"
+    "build": "bash build.sh"
   }
 }
