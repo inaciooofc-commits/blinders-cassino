@@ -1,0 +1,4 @@
+# Cloudflare Pages redirects - válido
+# Não use status 404 aqui.
+# O site será publicado pela pasta dist.
+/* /index.html 200

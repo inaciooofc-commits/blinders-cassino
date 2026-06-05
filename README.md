@@ -1,65 +1,41 @@
-# Blinders Cassino — GitHub Ready
+# Blinders Cassino — Upload mínimo v2 sem erro de _redirects
 
-Pacote pronto para subir no GitHub e conectar no Cloudflare Pages.
+Este pacote corrige o erro:
 
-## O que está incluído
+`Invalid _redirects configuration: Got 404`
 
-- Site estático completo na raiz do repositório.
-- Banco IRIS Control + submenus.
-- Menu hambúrguer reorganizado em submenus.
-- Jogos reais e módulos anteriores preservados.
-- UI premium aplicada com:
-  - `/assets/blinders-effects.css`
-  - `/assets/blinders-effects.js`
-- SQL para colar no Supabase em:
-  - `database/SQL_PARA_COLAR_NO_SUPABASE.sql`
-  - `database/SQL_COMPLETO_TODAS_ATUALIZACOES_DISPONIVEIS.sql`
+## Suba no GitHub somente estes arquivos
 
-## Como subir no GitHub
+- `site.zip`
+- `package.json`
+- `build.js`
+- `_redirects`
+- `README.md`
+- `SQL_PARA_COLAR_NO_SUPABASE.sql`
 
-1. Crie um repositório chamado `blinders-cassino`.
-2. Extraia este ZIP.
-3. Arraste tudo para o repositório.
-4. Faça commit.
+## Importante
 
-Sugestão de commit:
+Se no repositório antigo existir um `_redirects` com:
 
-```text
-Blinders Cassino GitHub ready
-```
+`/database/* /404.html 404`
+
+apague ele ou substitua pelo `_redirects` deste pacote.
 
 ## Cloudflare Pages
 
-Configuração:
+Use exatamente:
 
 ```text
 Framework preset: None
-Build command: vazio
-Output directory: /
+Build command: npm install && npm run build
+Output directory: dist
 Root directory: /
 ```
 
+O `build.js` remove qualquer `_redirects` inválido de dentro do `site.zip`.
+
 ## Supabase
 
-Para banco já atualizado, cole:
+Cole:
 
-```text
-database/SQL_PARA_COLAR_NO_SUPABASE.sql
-```
-
-Para reaplicar a sequência completa de atualizações disponíveis, use:
-
-```text
-database/SQL_COMPLETO_TODAS_ATUALIZACOES_DISPONIVEIS.sql
-```
-
-## Segurança
-
-Não coloque no GitHub:
-
-- service_role key
-- senhas reais
-- segredos privados
-- tokens pessoais
-
-A chave `anon` do Supabase pode ficar no frontend, desde que as funções continuem protegidas por token/login.
+`SQL_PARA_COLAR_NO_SUPABASE.sql`
